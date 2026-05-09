@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtex — Client Onboarding</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red:#DD1D1D; --dark-red:#8A1212; --dark:#111111; --gray:#444;
+  --lt:#888; --border:#E0E0E0; --bg:#F7F6F3; --white:#fff;
+  --card:#FAFAF8; --bgred:#FDF4F4;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark);min-height:100vh;}
+
+.header{background:var(--dark);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;border-bottom:3px solid var(--red);position:sticky;top:0;z-index:100;}
+.logo{font-family:'Playfair Display',serif;font-size:1.35rem;font-weight:700;color:#fff;}
+.logo span{color:var(--red);}
+.htag{font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--lt);}
+
+.prog-bar-wrap{background:#fff;border-bottom:1px solid var(--border);padding:.85rem 2rem;display:flex;align-items:center;gap:1rem;}
+.prog-track{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--red);border-radius:2px;transition:width .4s ease;width:0%;}
+.prog-label{font-size:.72rem;font-weight:600;color:var(--lt);text-transform:uppercase;letter-spacing:.05em;min-width:80px;text-align:right;}
+
+.wrap{max-width:740px;margin:0 auto;padding:2.5rem 1.5rem 5rem;}
+
+.intro{margin-bottom:2rem;}
+.eyebrow{font-size:.7rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:.4rem;}
+.intro h1{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;line-height:1.2;margin-bottom:.6rem;}
+.intro p{font-size:.92rem;color:var(--lt);line-height:1.6;}
+
+.step{background:#fff;border:1px solid var(--border);border-radius:8px;margin-bottom:1.25rem;overflow:hidden;display:none;}
+.step.active{display:block;animation:fadeup .3s ease;}
+@keyframes fadeup{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.step-head{background:var(--dark);padding:.9rem 1.4rem;display:flex;align-items:center;gap:.85rem;}
+.step-num{width:26px;height:26px;background:var(--red);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;}
+.step-title{font-size:.78rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#fff;}
+.step-body{padding:1.4rem;}
+
+.row{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-bottom:.9rem;}
+.row.single{grid-template-columns:1fr;}
+@media(max-width:540px){.row{grid-template-columns:1fr;}}
+
+.field{display:flex;flex-direction:column;gap:.35rem;}
+label.field-label{font-size:.72rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--gray);}
+label.field-label .req{color:var(--red);margin-left:2px;}
+input,select,textarea{width:100%;border:1.5px solid var(--border);border-radius:5px;padding:.6rem .8rem;font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--dark);background:#fff;outline:none;transition:border-color .2s;appearance:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--red);}
+textarea{resize:vertical;min-height:88px;}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 11px center;padding-right:2rem;cursor:pointer;}
+.hint{font-size:.7rem;color:var(--lt);line-height:1.4;}
+
+/* Toggle pills — event delegation safe */
+.pill-group{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.2rem;}
+.pill{padding:.42rem .8rem;border:1.5px solid var(--border);border-radius:5px;cursor:pointer;font-size:.83rem;color:var(--gray);background:#fff;transition:all .15s;user-select:none;-webkit-user-select:none;}
+.pill:hover{border-color:var(--red);color:var(--dark);}
+.pill.on{border-color:var(--red);background:var(--bgred);color:var(--dark);font-weight:500;}
+
+.divider{height:1px;background:var(--border);margin:1.1rem 0;}
+.info-box{background:var(--bgred);border-left:3px solid var(--red);border-radius:0 5px 5px 0;padding:.8rem 1rem;margin-bottom:1.1rem;font-size:.82rem;color:var(--gray);line-height:1.5;}
+.info-box strong{color:var(--dark);}
+
+/* Agent cards */
+.agent-card{border:1.5px solid var(--border);border-radius:6px;padding:1rem 1.1rem;margin-bottom:.7rem;background:var(--card);}
+.agent-label{font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--red);margin-bottom:.7rem;}
+.add-btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1rem;background:var(--dark);color:#fff;border:none;border-radius:5px;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;margin-top:.3rem;transition:background .2s;}
+.add-btn:hover{background:var(--red);}
+
+/* Nav */
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:1.4rem;gap:1rem;}
+.btn-back{padding:.65rem 1.4rem;border:1.5px solid var(--border);background:#fff;border-radius:5px;font-family:'DM Sans',sans-serif;font-size:.86rem;font-weight:600;color:var(--gray);cursor:pointer;transition:all .2s;}
+.btn-back:hover{border-color:var(--dark);color:var(--dark);}
+.btn-next{padding:.65rem 1.9rem;background:var(--red);border:none;border-radius:5px;font-family:'DM Sans',sans-serif;font-size:.86rem;font-weight:600;color:#fff;cursor:pointer;letter-spacing:.04em;transition:background .2s;}
+.btn-next:hover{background:var(--dark-red);}
+.dots{display:flex;gap:5px;align-items:center;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--border);transition:background .2s;}
+.dot.on{background:var(--red);}
+.dot.done{background:var(--gray);}
+
+/* Success */
+.success{display:none;text-align:center;padding:3rem 1.5rem;background:#fff;border:1px solid var(--border);border-radius:8px;}
+.success.show{display:block;animation:fadeup .4s ease;}
+.s-icon{width:56px;height:56px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;}
+.s-icon svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:2.5;}
+.success h2{font-family:'Playfair Display',serif;font-size:1.55rem;margin-bottom:.65rem;}
+.success p{color:var(--lt);font-size:.88rem;line-height:1.6;max-width:420px;margin:0 auto .4rem;}
+.s-summary{margin-top:1.3rem;padding:.9rem 1.3rem;background:var(--bg);border-radius:6px;display:inline-block;text-align:left;font-size:.82rem;color:var(--gray);line-height:1.8;min-width:260px;}
+.s-summary strong{color:var(--dark);}
+.dl-btn{margin-top:1.4rem;padding:.8rem 2.2rem;background:var(--red);border:none;border-radius:5px;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:600;color:#fff;cursor:pointer;transition:background .2s;}
+.dl-btn:hover{background:var(--dark-red);}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">VIRTEX<span>.</span></div>
+  <div class="htag">Client Onboarding — Real Estate</div>
+</div>
+
+<div class="prog-bar-wrap">
+  <div class="prog-track"><div class="prog-fill" id="pFill"></div></div>
+  <div class="prog-label" id="pLabel">Step 1 of 6</div>
+</div>
+
+<div class="wrap">
+  <div class="intro">
+    <div class="eyebrow">AI Receptionist Setup</div>
+    <h1>Let's build your AI receptionist.</h1>
+    <p>Complete the form below and Sophia will be live and answering calls for your office within 48 hours. Takes about 10 minutes.</p>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step active" id="step1">
+    <div class="step-head"><div class="step-num">1</div><div class="step-title">Business Information</div></div>
+    <div class="step-body">
+      <div class="row">
+        <div class="field">
+          <label class="field-label">Client Type <span class="req">*</span></label>
+          <div class="pill-group" data-type="radio" data-name="clientType">
+            <div class="pill on" data-value="Single Agent">Single Agent</div>
+            <div class="pill" data-value="Real Estate Team">Real Estate Team</div>
+            <div class="pill" data-value="Full Brokerage">Full Brokerage</div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Business / Brokerage Name <span class="req">*</span></label>
+          <input type="text" id="bizName" placeholder="e.g. The Nix Team at Coldwell Banker">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="field-label">Primary Contact — First Name <span class="req">*</span></label>
+          <input type="text" id="firstName" placeholder="Carla">
+        </div>
+        <div class="field">
+          <label class="field-label">Primary Contact — Last Name <span class="req">*</span></label>
+          <input type="text" id="lastName" placeholder="Nix">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="field-label">Office Phone <span class="req">*</span></label>
+          <input type="tel" id="phone" placeholder="(941) 225-4663">
+        </div>
+        <div class="field">
+          <label class="field-label">Business Email <span class="req">*</span></label>
+          <input type="email" id="email" placeholder="carla@nixandassociates.com">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="field-label">Website URL</label>
+          <input type="url" id="website" placeholder="https://nixandassociates.com">
+        </div>
+        <div class="field">
+          <label class="field-label">Office Address</label>
+          <input type="text" id="address" placeholder="2421 Shreve St, Punta Gorda FL 33950">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step" id="step2">
+    <div class="step-head"><div class="step-num">2</div><div class="step-title">Market &amp; Coverage Area</div></div>
+    <div class="step-body">
+      <div class="info-box"><strong>Why this matters:</strong> Sophia will use this to tell callers exactly which areas you serve and match buyers and sellers with the right agent.</div>
+      <div class="row single">
+        <div class="field">
+          <label class="field-label">Primary Market Area <span class="req">*</span></label>
+          <input type="text" id="primaryMarket" placeholder="e.g. Punta Gorda, Port Charlotte, Charlotte Harbor — Southwest Florida">
+          <div class="hint">List all cities, counties, or regions you actively serve. Sophia references this on every call.</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="row single">
+        <div class="field">
+          <label class="field-label">Property Specialties <span class="req">*</span></label>
+          <div class="pill-group" data-type="check" data-name="specialties">
+            <div class="pill on" data-value="Waterfront">Waterfront</div>
+            <div class="pill" data-value="Luxury / High-End">Luxury / High-End</div>
+            <div class="pill" data-value="Residential">Residential</div>
+            <div class="pill" data-value="Condos / Townhomes">Condos / Townhomes</div>
+            <div class="pill" data-value="Investment / Rental">Investment / Rental</div>
+            <div class="pill" data-value="Commercial">Commercial</div>
+            <div class="pill" data-value="Land / Acreage">Land / Acreage</div>
+            <div class="pill" data-value="New Construction">New Construction</div>
+            <div class="pill" data-value="Relocation">Relocation</div>
+            <div class="pill" data-value="First-Time Buyers">First-Time Buyers</div>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="row">
+        <div class="field">
+          <label class="field-label">Typical Price Range — Low</label>
+          <input type="text" id="priceMin" placeholder="e.g. $300,000">
+        </div>
+        <div class="field">
+          <label class="field-label">Typical Price Range — High</label>
+          <input type="text" id="priceMax" placeholder="e.g. $3,000,000+">
+        </div>
+      </div>
+      <div class="row single">
+        <div class="field">
+          <label class="field-label">Anything Sophia Should Know About Your Market</label>
+          <textarea id="marketNotes" placeholder="e.g. We specialize in Gulf access waterfront. Most buyers are relocating from the Northeast."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step" id="step3">
+    <div class="step-head"><div class="step-num">3</div><div class="step-title">Agent Roster &amp; Routing</div></div>
+    <div class="step-body">
+      <div class="info-box"><strong>How routing works:</strong> Sophia uses each agent's specialty and area to route the right calls to the right person. Single agents — just fill in your own info.</div>
+      <div id="agentList">
+        <div class="agent-card">
+          <div class="agent-label">Agent 1 — Primary Contact</div>
+          <div class="row">
+            <div class="field"><label class="field-label">Full Name <span class="req">*</span></label><input type="text" id="a1name" placeholder="Carla Nix"></div>
+            <div class="field"><label class="field-label">Title / Role</label><input type="text" id="a1title" placeholder="Team Leader | Broker Associate"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label class="field-label">Direct Phone</label><input type="tel" id="a1phone" placeholder="(941) 225-4663"></div>
+            <div class="field"><label class="field-label">Email</label><input type="email" id="a1email" placeholder="carla@nixandassociates.com"></div>
+          </div>
+          <div class="row single">
+            <div class="field"><label class="field-label">Specialty &amp; Routing Notes</label><textarea id="a1spec" style="min-height:65px;" placeholder="e.g. Luxury waterfront, sellers, relocation. Route all $1M+ listings and seller leads here."></textarea></div>
+          </div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-label">Agent 2</div>
+          <div class="row">
+            <div class="field"><label class="field-label">Full Name</label><input type="text" id="a2name" placeholder="Katie Felker"></div>
+            <div class="field"><label class="field-label">Title / Role</label><input type="text" id="a2title" placeholder="Buyer's Specialist"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label class="field-label">Direct Phone</label><input type="tel" id="a2phone"></div>
+            <div class="field"><label class="field-label">Email</label><input type="email" id="a2email"></div>
+          </div>
+          <div class="row single">
+            <div class="field"><label class="field-label">Specialty &amp; Routing Notes</label><textarea id="a2spec" style="min-height:65px;" placeholder="e.g. All buyers — especially first-time and out-of-state. Route all buyer calls here."></textarea></div>
+          </div>
+        </div>
+      </div>
+      <button class="add-btn" onclick="addAgent()">+ Add Another Agent</button>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="step" id="step4">
+    <div class="step-head"><div class="step-num">4</div><div class="step-title">Active Listings</div></div>
+    <div class="step-body">
+      <div class="info-box"><strong>Why this matters:</strong> Sophia references your listings on live calls. When a buyer asks about a property, she knows the details and connects them with the right agent.</div>
+      <div class="row single">
+        <div class="field">
+          <label class="field-label">Paste Your Active Listings <span class="req">*</span></label>
+          <textarea id="listings" style="min-height:180px;" placeholder="Paste listings in any format. Include as much detail as you have:
+
+Address, Price, Beds, Baths, Sq Ft, Status, Key Features, Listing Agent
+
+Example:
+5566 River Bay Dr, Punta Gorda — $2,950,000 — Active
+3 bed / 3 bath / 3,279 sq ft
+Waterfront estate on 2 acres. Unmatched privacy.
+Agent: Carla Nix
+
+List as many as you have. More detail = better Sophia."></textarea>
+          <div class="hint">Don't worry about formatting — paste whatever you have and we'll structure it correctly.</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="row">
+        <div class="field">
+          <label class="field-label">Pending Listings?</label>
+          <div class="pill-group" data-type="radio" data-name="hasPending">
+            <div class="pill on" data-value="No">No</div>
+            <div class="pill" data-value="Yes — included above">Yes — included above</div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">Accept Backup Offers on Pendings?</label>
+          <div class="pill-group" data-type="radio" data-name="backupOffers">
+            <div class="pill on" data-value="No">No</div>
+            <div class="pill" data-value="Yes">Yes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5 -->
+  <div class="step" id="step5">
+    <div class="step-head"><div class="step-num">5</div><div class="step-title">Call Handling Preferences</div></div>
+    <div class="step-body">
+      <div class="row single">
+        <div class="field">
+          <label class="field-label">What Types of Calls Should Sophia Handle? <span class="req">*</span></label>
+          <div class="pill-group" data-type="check" data-name="callTypes">
+            <div class="pill on" data-value="Buyer Inquiries">Buyer Inquiries</div>
+            <div class="pill on" data-value="Seller Leads">Seller Leads</div>
+            <div class="pill on" data-value="Listing Questions">Listing Questions</div>
+            <div class="pill on" data-value="General Inquiries">General Inquiries</div>
+            <div class="pill" data-value="Investor Calls">Investor Calls</div>
+            <div class="pill" data-value="Existing Client Check-Ins">Existing Client Check-Ins</div>
+            <div class="pill" data-value="Market Analysis Requests">Market Analysis Requests</div>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="row">
+        <div class="field">
+          <label class="field-label">Primary Goal of Every Call <span class="req">*</span></label>
+          <select id="callGoal">
+            <option value="Book a Consultation Call">Book a Consultation Call</option>
+            <option value="Book a Property Showing">Book a Property Showing</option>
+            <option value="Book Consultation or Showing">Book Consultation or Showing</option>
+            <option value="Collect Lead Info Only">Collect Lead Info Only</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Consultation Length</label>
+          <select id="consultLength">
+            <option value="15 minutes">15 minutes</option>
+            <option value="15–20 minutes" selected>15–20 minutes</option>
+            <option value="20–30 minutes">20–30 minutes</option>
+            <option value="Up to 1 hour">Up to 1 hour</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="field-label">After Hours Handling <span class="req">*</span></label>
+          <select id="afterHours">
+            <option value="Still attempt to book a consultation">Still attempt to book a consultation</option>
+            <option value="Take a message — agent calls back">Take a message — agent calls back</option>
+            <option value="Attempt to book, take message if declined">Attempt to book, take message if declined</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Offer Free Market Analysis?</label>
+          <div class="pill-group" data-type="radio" data-name="marketAnalysis">
+            <div class="pill on" data-value="Yes — Complimentary">Yes — Complimentary</div>
+            <div class="pill" data-value="No">No</div>
+          </div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="row single">
+        <div class="field">
+          <label class="field-label">Things Sophia Should Never Say or Do</label>
+          <textarea id="neverDo" placeholder="e.g. Never quote commission rates. Never mention competitors by name." style="min-height:70px;"></textarea>
+        </div>
+      </div>
+      <div class="row single">
+        <div class="field">
+          <label class="field-label">Brand Language or Phrases to Use</label>
+          <textarea id="brandLang" placeholder="e.g. Always call it a 'complimentary consultation.' Always mention $600M+ in career sales when asked about the team." style="min-height:70px;"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 6 -->
+  <div class="step" id="step6">
+    <div class="step-head"><div class="step-num">6</div><div class="step-title">Notifications &amp; Final Details</div></div>
+    <div class="step-body">
+      <div class="row single">
+        <div class="field">
+          <label class="field-label">Internal Notification Email <span class="req">*</span></label>
+          <input type="email" id="notifEmail" placeholder="carla@nixandassociates.com">
+          <div class="hint">Virtex will send call transcripts and lead summaries here after every call.</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label class="field-label">SMS Alerts After Each Call?</label>
+          <div class="pill-group" data-type="radio" data-name="smsNotif">
+            <div class="pill on" data-value="Yes">Yes — text me after every call</div>
+            <div class="pill" data-value="No">No — email only</div>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label">SMS Number</label>
+          <input type="tel" id="smsNumber" placeholder="(941) 225-4663">
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="row single">
+        <div class="field">
+          <label class="field-label">Additional Notes for the Virtex Team</label>
+          <textarea id="addNotes" placeholder="Anything else we should know before building Sophia — special instructions, upcoming listings, unique situations, etc." style="min-height:90px;"></textarea>
+        </div>
+      </div>
+      <div class="row single">
+        <div class="field">
+          <label class="field-label">How Did You Hear About Virtex?</label>
+          <select id="referral">
+            <option value="">Select one</option>
+            <option>Referral from a colleague</option>
+            <option>Social Media</option>
+            <option>Google Search</option>
+            <option>Meta / Facebook Ad</option>
+            <option>Cold Call / Outreach</option>
+            <option>Event or Conference</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success" id="successBox">
+    <div class="s-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
+    <h2>You're all set.</h2>
+    <p>Onboarding complete. Download your Agent Build Sheet below — it has everything needed to set Sophia up in GHL.</p>
+    <p>Sophia will be live and answering calls within 48 hours.</p>
+    <div class="s-summary" id="sSummary"></div>
+    <br>
+    <button class="dl-btn" onclick="downloadPDF()">⬇ Download Agent Build Sheet PDF</button>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav" id="navBar">
+    <button class="btn-back" id="btnBack" onclick="goBack()" style="visibility:hidden">← Back</button>
+    <div class="dots" id="navDots"></div>
+    <button class="btn-next" id="btnNext" onclick="goNext()">Continue →</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const TOTAL = 6;
+let cur = 1;
+let agentN = 2;
+let fd = {};
+
+// ── EVENT DELEGATION for pills ──────────────────────────────
+document.addEventListener('click', function(e) {
+  const pill = e.target.closest('.pill');
+  if (!pill) return;
+  const group = pill.closest('.pill-group');
+  if (!group) return;
+  const type = group.dataset.type;
+  if (type === 'radio') {
+    group.querySelectorAll('.pill').forEach(p => p.classList.remove('on'));
+    pill.classList.add('on');
+  } else {
+    pill.classList.toggle('on');
+  }
+});
+
+// ── PILL READ ──────────────────────────────────────────────
+function pillVal(name) {
+  const group = document.querySelector(`.pill-group[data-name="${name}"]`);
+  if (!group) return '';
+  const on = [...group.querySelectorAll('.pill.on')].map(p => p.dataset.value);
+  return on.join(', ');
+}
+
+function v(id) {
+  const el = document.getElementById(id);
+  return el ? (el.value || '').trim() : '';
+}
+
+// ── UI ─────────────────────────────────────────────────────
+function renderUI() {
+  for (let i = 1; i <= TOTAL; i++)
+    document.getElementById('step'+i).classList.toggle('active', i === cur);
+  const pct = Math.round((cur / TOTAL) * 100);
+  document.getElementById('pFill').style.width = pct + '%';
+  document.getElementById('pLabel').textContent = 'Step ' + cur + ' of ' + TOTAL;
+  document.getElementById('btnBack').style.visibility = cur > 1 ? 'visible' : 'hidden';
+  document.getElementById('btnNext').textContent = cur === TOTAL ? 'Submit & Download PDF →' : 'Continue →';
+  const dotsEl = document.getElementById('navDots');
+  dotsEl.innerHTML = '';
+  for (let i = 1; i <= TOTAL; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === cur ? ' on' : i < cur ? ' done' : '');
+    dotsEl.appendChild(d);
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goNext() {
+  if (cur === TOTAL) { submit(); return; }
+  cur++; renderUI();
+}
+function goBack() {
+  if (cur > 1) { cur--; renderUI(); }
+}
+
+// ── ADD AGENT ──────────────────────────────────────────────
+function addAgent() {
+  agentN++;
+  const n = agentN;
+  const div = document.createElement('div');
+  div.className = 'agent-card';
+  div.innerHTML = `
+    <div class="agent-label">Agent ${n}</div>
+    <div class="row">
+      <div class="field"><label class="field-label">Full Name</label><input type="text" id="a${n}name"></div>
+      <div class="field"><label class="field-label">Title / Role</label><input type="text" id="a${n}title"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label class="field-label">Direct Phone</label><input type="tel" id="a${n}phone"></div>
+      <div class="field"><label class="field-label">Email</label><input type="email" id="a${n}email"></div>
+    </div>
+    <div class="row single">
+      <div class="field"><label class="field-label">Specialty &amp; Routing Notes</label>
+      <textarea id="a${n}spec" style="min-height:65px;" placeholder="Area focus, price range, clients to route here..."></textarea></div>
+    </div>`;
+  document.getElementById('agentList').insertBefore(div, document.querySelector('.add-btn'));
+}
+
+// ── COLLECT ─────────────────────────────────────────────────
+function collect() {
+  const agents = [];
+  for (let i = 1; i <= agentN; i++) {
+    const nm = v('a'+i+'name');
+    if (nm) agents.push({ name: nm, title: v('a'+i+'title'), phone: v('a'+i+'phone'), email: v('a'+i+'email'), spec: v('a'+i+'spec') });
+  }
+  return {
+    clientType: pillVal('clientType'),
+    bizName: v('bizName'), firstName: v('firstName'), lastName: v('lastName'),
+    phone: v('phone'), email: v('email'), website: v('website'), address: v('address'),
+    primaryMarket: v('primaryMarket'), specialties: pillVal('specialties'),
+    priceMin: v('priceMin'), priceMax: v('priceMax'), marketNotes: v('marketNotes'),
+    agents,
+    listings: v('listings'), hasPending: pillVal('hasPending'), backupOffers: pillVal('backupOffers'),
+    callTypes: pillVal('callTypes'), callGoal: v('callGoal'), consultLength: v('consultLength'),
+    afterHours: v('afterHours'), marketAnalysis: pillVal('marketAnalysis'),
+    neverDo: v('neverDo'), brandLang: v('brandLang'),
+    notifEmail: v('notifEmail'), smsNotif: pillVal('smsNotif'), smsNumber: v('smsNumber'),
+    addNotes: v('addNotes'), referral: v('referral'),
+    date: new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }),
+  };
+}
+
+// ── SUBMIT ──────────────────────────────────────────────────
+function submit() {
+  fd = collect();
+  for (let i = 1; i <= TOTAL; i++) document.getElementById('step'+i).classList.remove('active');
+  document.getElementById('navBar').style.display = 'none';
+  document.getElementById('successBox').classList.add('show');
+  document.getElementById('pFill').style.width = '100%';
+  document.getElementById('pLabel').textContent = 'Complete';
+  document.getElementById('sSummary').innerHTML =
+    '<strong>Business:</strong> ' + (fd.bizName||'—') + '<br>' +
+    '<strong>Contact:</strong> ' + (fd.firstName+' '+fd.lastName).trim() + '<br>' +
+    '<strong>Market:</strong> ' + (fd.primaryMarket||'—') + '<br>' +
+    '<strong>Agents:</strong> ' + fd.agents.length + '<br>' +
+    '<strong>Notify:</strong> ' + (fd.notifEmail||'—') + '<br>' +
+    '<strong>Submitted:</strong> ' + fd.date;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── PDF ──────────────────────────────────────────────────────
+function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'pt', format:'letter' });
+  const PW = doc.internal.pageSize.getWidth();
+  const PH = doc.internal.pageSize.getHeight();
+  const ML = 44, MR = PW - 44, TW = PW - 88;
+  const RED=[221,29,29], DARK=[17,17,17], GRAY=[80,80,80], LT=[136,136,136];
+  const BGRAY=[247,246,243], BGRED=[253,244,244], CARDGB=[250,250,248];
+  let y=0, pg=1;
+
+  function newPage() {
+    doc.addPage(); pg++; y=50; hdr(); ftr();
+  }
+  function chk(n) { if (y+n > PH-44) newPage(); }
+
+  function hdr() {
+    doc.setFillColor(...DARK); doc.rect(0,0,PW,34,'F');
+    doc.setFillColor(...RED);  doc.rect(0,0,5,34,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(255,255,255);
+    doc.text('VIRTEX.',ML,22);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(160,160,160);
+    doc.text('VIRTEX — AGENT BUILD SHEET',MR,22,{align:'right'});
+  }
+  function ftr() {
+    doc.setFillColor(240,240,240); doc.rect(0,PH-22,PW,22,'F');
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(...LT);
+    doc.text('Virtex LLC  |  virtexsolutions.io  |  Confidential',ML,PH-7);
+    doc.text('Page '+pg,MR,PH-7,{align:'right'});
+  }
+
+  function secBar(title) {
+    chk(28);
+    doc.setFillColor(...RED); doc.rect(ML,y,TW,20,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(255,255,255);
+    doc.text(title.toUpperCase(),ML+10,y+13); y+=28;
+  }
+
+  function dataRow(label, val) {
+    if (!val) return;
+    const lines = doc.splitTextToSize(String(val), TW-130);
+    const h = Math.max(16, lines.length*12)+4;
+    chk(h);
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...GRAY);
+    doc.text(label, ML, y+10);
+    doc.setFont('helvetica','normal'); doc.setTextColor(...DARK);
+    doc.text(lines, ML+130, y+10);
+    y += h;
+  }
+
+  function textBox(label, val) {
+    if (!val) return;
+    chk(28);
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(...GRAY);
+    doc.text(label, ML, y+10); y+=16;
+    const lines = doc.splitTextToSize(String(val), TW-20);
+    const h = lines.length*12+16;
+    chk(h);
+    doc.setFillColor(...BGRED);
+    doc.roundedRect(ML,y,TW,h,3,3,'F');
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...DARK);
+    doc.text(lines,ML+10,y+12); y+=h+10;
+  }
+
+  function agentBlock(a, n) {
+    const specLines = a.spec ? doc.splitTextToSize(a.spec, TW-80) : [];
+    const h = 28+16+14+(a.phone?12:0)+(a.email?12:0)+(specLines.length?specLines.length*12+14:0)+14;
+    chk(h);
+    doc.setFillColor(...CARDGB);
+    doc.roundedRect(ML,y,TW,h,4,4,'F');
+    doc.setFillColor(...RED);
+    doc.roundedRect(ML,y,TW,20,4,4,'F');
+    doc.rect(ML,y+10,TW,10,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(255,255,255);
+    const lbl = 'AGENT '+n+(a.title ? '  —  '+a.title.toUpperCase() : '');
+    doc.text(lbl,ML+10,y+13); y+=26;
+    doc.setFontSize(11); doc.setTextColor(...DARK);
+    doc.text(a.name,ML+10,y+10); y+=18;
+    doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...GRAY);
+    if(a.phone){doc.text('Phone: '+a.phone,ML+10,y);y+=13;}
+    if(a.email){doc.text('Email: '+a.email,ML+10,y);y+=13;}
+    if(specLines.length){
+      doc.setFont('helvetica','bold'); doc.setTextColor(...DARK);
+      doc.text('Routing:',ML+10,y); y+=13;
+      doc.setFont('helvetica','normal'); doc.setTextColor(...GRAY);
+      doc.text(specLines,ML+10,y); y+=specLines.length*12;
+    }
+    y+=14;
+  }
+
+  function checkItem(text) {
+    chk(18);
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...DARK);
+    doc.rect(ML+8,y+2,9,9); // checkbox outline
+    doc.text(text,ML+24,y+10); y+=18;
+  }
+
+  // ── BUILD ──────────────────────────────────────────────────
+  hdr(); ftr(); y=50;
+
+  // Title
+  doc.setFillColor(...BGRAY); doc.rect(ML,y,TW,62,'F');
+  doc.setFillColor(...RED); doc.rect(ML,y,4,62,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.setTextColor(...DARK);
+  doc.text('Agent Build Sheet',ML+14,y+22);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...GRAY);
+  doc.text(fd.bizName||'Client',ML+14,y+38);
+  doc.text('Submitted: '+fd.date,ML+14,y+52);
+  y+=78;
+
+  secBar('1. Business Information');
+  dataRow('Client Type', fd.clientType);
+  dataRow('Business Name', fd.bizName);
+  dataRow('Primary Contact', (fd.firstName+' '+fd.lastName).trim());
+  dataRow('Phone', fd.phone);
+  dataRow('Email', fd.email);
+  dataRow('Website', fd.website);
+  dataRow('Address', fd.address);
+  y+=8;
+
+  secBar('2. Market & Coverage');
+  dataRow('Primary Market', fd.primaryMarket);
+  dataRow('Specialties', fd.specialties);
+  dataRow('Price Range', (fd.priceMin||'—')+' to '+(fd.priceMax||'—'));
+  textBox('Market Notes', fd.marketNotes);
+  y+=4;
+
+  secBar('3. Agent Roster & Routing');
+  y+=4;
+  fd.agents.forEach((a,i) => agentBlock(a, i+1));
+  y+=4;
+
+  secBar('4. Active Listings');
+  dataRow('Pending Listings', fd.hasPending);
+  dataRow('Backup Offers', fd.backupOffers);
+  y+=4;
+  textBox('Listings', fd.listings);
+  y+=4;
+
+  secBar('5. Call Handling Preferences');
+  dataRow('Call Types', fd.callTypes);
+  dataRow('Primary Goal', fd.callGoal);
+  dataRow('Consult Length', fd.consultLength);
+  dataRow('After Hours', fd.afterHours);
+  dataRow('Market Analysis', fd.marketAnalysis);
+  textBox('Never Do', fd.neverDo);
+  textBox('Brand Language', fd.brandLang);
+  y+=4;
+
+  secBar('6. Notifications & Final Details');
+  dataRow('Notification Email', fd.notifEmail);
+  dataRow('SMS Alerts', fd.smsNotif);
+  dataRow('SMS Number', fd.smsNumber);
+  dataRow('Referral Source', fd.referral);
+  textBox('Additional Notes', fd.addNotes);
+  y+=4;
+
+  secBar('Build Checklist');
+  y+=4;
+  [
+    'Knowledge base built from listings above',
+    'Agent roster and routing logic configured in GHL',
+    'Master prompt loaded — brokerage name and market area filled in',
+    'Voice set to Female — Professional in GHL Voice AI',
+    'Agent calendar(s) connected with availability set',
+    'Post-call transcript notification to: '+(fd.notifEmail||'—'),
+    fd.smsNotif==='Yes' ? 'SMS notification to: '+(fd.smsNumber||'—') : null,
+    'Consultation booking workflow active',
+    'Test call completed and approved by client',
+    'Client confirmed Sophia is live',
+  ].filter(Boolean).forEach(item => checkItem(item));
+
+  const fname = (fd.bizName||'Client').replace(/[^a-z0-9]/gi,'_').toUpperCase();
+  doc.save('Virtex_BuildSheet_'+fname+'.pdf');
+}
+
+renderUI();
+</script>
+</body>
+</html>
